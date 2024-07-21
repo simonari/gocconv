@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"path"
 	"vsimonari/gocconv/internal/core"
 )
 
@@ -15,6 +16,10 @@ type RatesFile struct {
 }
 
 func OpenRatesFile(name string) *RatesFile {
+	dir, _ := path.Split(name)
+
+	os.Mkdir(dir, os.ModePerm)
+
 	file, err := os.OpenFile(name, os.O_RDWR|os.O_CREATE, 0644)
 
 	if err != nil {
@@ -107,5 +112,3 @@ func (csf *RatesFile) readDataFromBeggining() []byte {
 
 	return data
 }
-
-// TODO: separate I/O logic and interaction with core.Currency or core.Currencies

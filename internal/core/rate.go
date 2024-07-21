@@ -2,6 +2,7 @@ package core
 
 import (
 	"errors"
+	"fmt"
 )
 
 type CurrencyRate struct {
@@ -18,144 +19,76 @@ func (cer *CurrencyRate) ReverseRate() CurrencyRate {
 	}
 }
 
-type ratePresented struct {
-	forward bool
-	reverse bool
-}
-
-func (rp *ratePresented) isBoth() bool {
-	if rp.forward && rp.reverse {
-		return true
-	}
-
-	return false
-}
-
 type CurrencyRates struct {
 	Rates  []CurrencyRate `json:"rates"`
 	Stored uint8          `json:"stored"`
 }
 
-func (rs *CurrencyRates) isRatePresented(item CurrencyRate) ratePresented {
-	rp := ratePresented{}
+func (rs *CurrencyRates) getRateIdx(item CurrencyRate) (int, error) {
+	for i, r := range rs.Rates {
+		forward := (r.From == item.From && r.To == item.To)
+		reverse := (r.From == item.To && r.To == item.From)
 
-	for _, cer := range rs.Rates {
-		if !rp.forward {
-			rp.forward = bool(cer.From == item.From && cer.To == item.To)
-		}
-
-		if !rp.reverse {
-			rp.reverse = bool(cer.From == item.To && cer.To == item.From)
+		if forward || reverse {
+			return i, nil
 		}
 	}
 
-	return rp
+	return -1, errors.New("no rate found")
 }
 
-func (rs *CurrencyRates) Add(item CurrencyRate) []CurrencyRate {
+func (rs *CurrencyRates) Add(r CurrencyRate) []CurrencyRate {
+	_, err := rs.getRateIdx(r)
+
 	result := rs.Rates
 
-	isPresented := rs.isRatePresented(item)
-
-	if !isPresented.forward {
-		result = append(result, item)
-	}
-
-	if !isPresented.reverse {
-		result = append(result, item.ReverseRate())
+	if err != nil {
+		result = append(result, r)
 	}
 
 	return result
 }
 
 func (rs *CurrencyRates) Get(from, to string) *CurrencyRate {
-	for _, r := range rs.Rates {
-		if r.From == from && r.To == to {
-			return &r
-		}
+	idx, err := rs.getRateIdx(CurrencyRate{From: from, To: to})
+
+	if err != nil {
+		fmt.Printf("[!] %s", err)
+		return nil
 	}
+
+	r := rs.Rates[idx]
+
+	if from == r.From {
+		return &r
+	} else {
+		r = r.ReverseRate()
+		return &r
+	}
+}
+
+func (rs *CurrencyRates) Update(from, to string, rate float32) error {
+	r := CurrencyRate{From: from, To: to, Rate: rate}
+
+	idx, err := rs.getRateIdx(r)
+
+	if err != nil {
+		return err
+	}
+
+	rs.Rates[idx] = r
 
 	return nil
 }
 
-func (rs *CurrencyRates) Update(from, to string, rate float32) error {
-	updatedCount := 0
-
-	for i, r := range rs.Rates {
-		if r.From == from && r.To == to {
-			rs.Rates[i].Rate = rate
-			updatedCount += 1
-		}
-
-		if r.From == to && r.To == from {
-			rs.Rates[i].Rate = 1 / rate
-			updatedCount += 1
-		}
-	}
-
-	if updatedCount != 0 {
-		return nil
-	}
-
-	println(updatedCount)
-
-	return errors.New("rate was not found")
-}
-
 func (rs *CurrencyRates) Delete(from, to string) error {
-	isPresented := ratePresented{}
-	var toRemoveForwardIdx, toRemoveReverseIdx int
+	rateToDelete := CurrencyRate{From: from, To: to}
+	idx, err := rs.getRateIdx(rateToDelete)
 
-	for i, r := range rs.Rates {
-		if r.From == from && r.To == to {
-			isPresented.forward = true
-			toRemoveForwardIdx = i
-		}
-
-		if r.From == to && r.To == from {
-			isPresented.reverse = true
-			toRemoveReverseIdx = i
-		}
+	if err != nil {
+		return err
 	}
 
-	if isPresented.isBoth() {
-		result := make([]CurrencyRate, len(rs.Rates)-2)
-
-		var lesserIdx, greaterIdx int
-
-		if toRemoveForwardIdx < toRemoveReverseIdx {
-			lesserIdx, greaterIdx = toRemoveForwardIdx, toRemoveReverseIdx
-		} else {
-			lesserIdx, greaterIdx = toRemoveReverseIdx, toRemoveForwardIdx
-		}
-
-		for i := 0; i < lesserIdx; i++ {
-			result[i] = rs.Rates[i]
-		}
-
-		for i := lesserIdx + 1; i < greaterIdx; i++ {
-			result[i] = rs.Rates[i]
-		}
-
-		for i := greaterIdx + 1; i < len(rs.Rates)-2; i++ {
-			result[i] = rs.Rates[i]
-		}
-
-		rs.Rates = result
-		rs.Stored = uint8(rs.Stored - 2)
-
-		return nil
-
-	} else if isPresented.forward {
-		return rs.deleteSingle(toRemoveForwardIdx)
-	} else if isPresented.reverse {
-		return rs.deleteSingle(toRemoveForwardIdx)
-	} else {
-		return errors.New("can not find the following element")
-	}
-}
-
-func (rs *CurrencyRates) deleteSingle(idx int) error {
 	result := make([]CurrencyRate, len(rs.Rates)-1)
 
 	for i := 0; i < idx; i++ {
@@ -166,8 +99,8 @@ func (rs *CurrencyRates) deleteSingle(idx int) error {
 		result[i] = rs.Rates[i]
 	}
 
-	rs.Rates = result
 	rs.Stored = uint8(len(rs.Rates) - 1)
+	rs.Rates = result
 
 	return nil
 }
