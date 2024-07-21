@@ -107,5 +107,3 @@ func (csf *RatesFile) readDataFromBeggining() []byte {
 
 	return data
 }
-
-// TODO: separate I/O logic and interaction with core.Currency or core.Currencies
