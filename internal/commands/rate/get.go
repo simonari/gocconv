@@ -23,9 +23,7 @@ func init() {
 }
 
 func getExchangeRateCmd(cmd *cobra.Command, args []string) {
-	path := ".storage/rates.json"
-
-	file := storage.OpenRatesFile(path)
+	file := storage.OpenRatesFile(RatesStoragePath)
 
 	rate := file.GetRate(getFromToken, getToToken)
 

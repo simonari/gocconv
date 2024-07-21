@@ -28,9 +28,7 @@ func deleteRateCmd(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	path := ".storage/rates.json"
-
-	file := storage.OpenRatesFile(path)
+	file := storage.OpenRatesFile(RatesStoragePath)
 
 	file.DeleteRate(deleteFromToken, deleteToToken)
 
