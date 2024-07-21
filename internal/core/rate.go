@@ -3,7 +3,6 @@ package core
 import (
 	"errors"
 	"fmt"
-	"log"
 )
 
 type CurrencyRate struct {
@@ -41,12 +40,11 @@ func (rs *CurrencyRates) getRateIdx(item CurrencyRate) (int, error) {
 func (rs *CurrencyRates) Add(r CurrencyRate) []CurrencyRate {
 	_, err := rs.getRateIdx(r)
 
-	if err != nil {
-		log.Fatalf("[!] Error: %s", err)
-	}
-
 	result := rs.Rates
-	result = append(result, r)
+
+	if err != nil {
+		result = append(result, r)
+	}
 
 	return result
 }
@@ -59,7 +57,14 @@ func (rs *CurrencyRates) Get(from, to string) *CurrencyRate {
 		return nil
 	}
 
-	return &rs.Rates[idx]
+	r := rs.Rates[idx]
+
+	if from == r.From {
+		return &r
+	} else {
+		r = r.ReverseRate()
+		return &r
+	}
 }
 
 func (rs *CurrencyRates) Update(from, to string, rate float32) error {
@@ -94,8 +99,8 @@ func (rs *CurrencyRates) Delete(from, to string) error {
 		result[i] = rs.Rates[i]
 	}
 
-	rs.Rates = result
 	rs.Stored = uint8(len(rs.Rates) - 1)
+	rs.Rates = result
 
 	return nil
 }
