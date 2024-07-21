@@ -25,9 +25,7 @@ func init() {
 }
 
 func updateRateCmd(cmd *cobra.Command, args []string) {
-	path := ".storage/rates.json"
-
-	file := storage.OpenRatesFile(path)
+	file := storage.OpenRatesFile(RatesStoragePath)
 
 	file.UpdateRate(updateFromToken, updateToToken, updateRate)
 
