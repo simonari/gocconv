@@ -53,7 +53,7 @@ func (rs *CurrencyRates) Get(from, to string) *CurrencyRate {
 	idx, err := rs.getRateIdx(CurrencyRate{From: from, To: to})
 
 	if err != nil {
-		fmt.Printf("[!] %s", err)
+		fmt.Printf("[!] %s\n", err)
 		return nil
 	}
 

@@ -46,6 +46,14 @@ type ExchangeRateResponse struct {
 	Rate           float64
 }
 
+func (resp *ExchangeRateResponse) GetRate() *CurrencyRate {
+	return &CurrencyRate{
+		From: resp.From,
+		To:   resp.To,
+		Rate: float32(resp.Rate),
+	}
+}
+
 func GetRateInfo(c CurrencyRate) ExchangeRateResponse {
 	rs := makeRequest(c)
 

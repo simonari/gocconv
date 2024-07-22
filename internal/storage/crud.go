@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"fmt"
 	"log"
 	"vsimonari/gocconv/internal/core"
 )
@@ -11,6 +12,8 @@ func (rf *RatesFile) AddRate(newRate core.CurrencyRate) {
 	rates := rs.Add(newRate)
 
 	rs = core.CurrencyRates{Rates: rates, Stored: uint8(len(rates))}
+
+	fmt.Println("[+] rate added")
 
 	rf.writeRates(rs)
 }
