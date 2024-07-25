@@ -3,6 +3,7 @@ package core
 import (
 	"errors"
 	"fmt"
+	"strings"
 )
 
 type CurrencyRate struct {
@@ -11,17 +12,32 @@ type CurrencyRate struct {
 	Rate float32 `json:"rate"`
 }
 
-func (cer *CurrencyRate) ReverseRate() CurrencyRate {
+func NewRate(from, to string, rate float32) *CurrencyRate {
+	return &CurrencyRate{
+		From: strings.ToUpper(from),
+		To:   strings.ToUpper(to),
+		Rate: rate,
+	}
+}
+
+func (r *CurrencyRate) ReverseRate() CurrencyRate {
 	return CurrencyRate{
-		From: cer.To,
-		To:   cer.From,
-		Rate: 1 / cer.Rate,
+		From: r.To,
+		To:   r.From,
+		Rate: 1 / r.Rate,
 	}
 }
 
 type CurrencyRates struct {
 	Rates  []CurrencyRate `json:"rates"`
 	Stored uint8          `json:"stored"`
+}
+
+func NewCurrencyRates(rates []CurrencyRate, stored uint8) *CurrencyRates {
+	return &CurrencyRates{
+		Rates:  rates,
+		Stored: stored,
+	}
 }
 
 func (rs *CurrencyRates) getRateIdx(item CurrencyRate) (int, error) {
@@ -37,13 +53,13 @@ func (rs *CurrencyRates) getRateIdx(item CurrencyRate) (int, error) {
 	return -1, errors.New("no rate found")
 }
 
-func (rs *CurrencyRates) Add(r CurrencyRate) []CurrencyRate {
-	_, err := rs.getRateIdx(r)
+func (rs *CurrencyRates) Add(r *CurrencyRate) []CurrencyRate {
+	_, err := rs.getRateIdx(*r)
 
 	result := rs.Rates
 
 	if err != nil {
-		result = append(result, r)
+		result = append(result, *r)
 	}
 
 	return result

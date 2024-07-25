@@ -36,11 +36,11 @@ func convertCurrenciesCmd(cmd *cobra.Command, args []string) {
 	currenciesRate := file.GetRate(convertFromToken, convertToToken)
 
 	if currenciesRate == nil {
-		rateInfo := core.GetRateInfo(core.CurrencyRate{From: convertFromToken, To: convertToToken})
+		rateInfo := core.GetRateInfo(convertFromToken, convertToToken)
 
 		currenciesRate = rateInfo.GetRate()
 
-		file.AddRate(*currenciesRate)
+		file.AddRate(currenciesRate)
 	}
 
 	forward := (currenciesRate.From == convertFromToken) && (currenciesRate.To == convertToToken)

@@ -33,13 +33,7 @@ func addExchangeRateCmd(cmd *cobra.Command, args []string) {
 
 	file := storage.OpenRatesFile(RatesStoragePath)
 
-	c := core.CurrencyRate{
-		From: addFromToken,
-		To:   addToToken,
-		Rate: rate,
-	}
-
-	file.AddRate(c)
+	file.AddRate(core.NewRate(addFromToken, addToToken, rate))
 
 	fmt.Printf("[+] Rate added. Now file contains [%v] rates\n", file.Stored)
 }

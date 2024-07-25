@@ -6,7 +6,7 @@ import (
 	"vsimonari/gocconv/internal/core"
 )
 
-func (rf *RatesFile) AddRate(newRate core.CurrencyRate) {
+func (rf *RatesFile) AddRate(newRate *core.CurrencyRate) {
 	rs := rf.ReadAll()
 
 	rates := rs.Add(newRate)

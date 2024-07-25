@@ -23,9 +23,7 @@ func init() {
 }
 
 func getRateFromWebCmd(cmd *cobra.Command, args []string) {
-	c := core.CurrencyRate{From: getFromToken, To: getToToken}
-
-	info := core.GetRateInfo(c)
+	info := core.GetRateInfo(getFromToken, getToToken)
 
 	fmt.Printf("F: %s\n", info.From)
 	fmt.Printf("T: %s\n", info.To)

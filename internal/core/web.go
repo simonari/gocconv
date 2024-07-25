@@ -14,9 +14,9 @@ type ExchangeRatesResponse struct {
 	Rates          map[string]float64 `json:"rates"`
 }
 
-func makeRequest(c CurrencyRate) *ExchangeRatesResponse {
+func makeRequest(from, to string) *ExchangeRatesResponse {
 	baseUrl := "https://open.er-api.com/v6/latest/"
-	token := c.From
+	token := from
 
 	url := baseUrl + token
 
@@ -54,10 +54,10 @@ func (resp *ExchangeRateResponse) GetRate() *CurrencyRate {
 	}
 }
 
-func GetRateInfo(c CurrencyRate) ExchangeRateResponse {
-	rs := makeRequest(c)
+func GetRateInfo(from, to string) ExchangeRateResponse {
+	rs := makeRequest(from, to)
 
-	rate := rs.Rates[c.To]
+	rate := rs.Rates[to]
 
 	if rate == 0 {
 		log.Fatal("[!] Error: rate was not found in web")
@@ -65,7 +65,7 @@ func GetRateInfo(c CurrencyRate) ExchangeRateResponse {
 
 	return ExchangeRateResponse{
 		From:           rs.Token,
-		To:             c.To,
+		To:             to,
 		TimeLastUpdate: rs.TimeLastUpdate,
 		Rate:           rate,
 	}

@@ -24,15 +24,11 @@ func init() {
 }
 
 func addRateFromWebCmd(cmd *cobra.Command, args []string) {
-	c := core.CurrencyRate{From: addFromToken, To: addToToken}
-
-	info := core.GetRateInfo(c)
-
-	c.Rate = float32(info.Rate)
+	info := core.GetRateInfo(addFromToken, addToToken)
 
 	file := storage.OpenRatesFile(RatesStoragePath)
 
-	file.AddRate(c)
+	file.AddRate(core.NewRate(addFromToken, addToToken, float32(info.Rate)))
 
 	fmt.Printf("[+] Rate added. Now file contains [%v] rates\n", file.Stored)
 }
