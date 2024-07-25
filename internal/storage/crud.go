@@ -7,7 +7,7 @@ import (
 )
 
 func (rf *RatesFile) AddRate(newRate core.CurrencyRate) {
-	rs := rf.readRatesFile()
+	rs := rf.ReadAll()
 
 	rates := rs.Add(newRate)
 
@@ -15,17 +15,17 @@ func (rf *RatesFile) AddRate(newRate core.CurrencyRate) {
 
 	fmt.Println("[+] rate added")
 
-	rf.writeRates(rs)
+	rf.Write(rs)
 }
 
 func (rf *RatesFile) GetRate(from, to string) *core.CurrencyRate {
-	rs := rf.readRatesFile()
+	rs := rf.ReadAll()
 
 	return rs.Get(from, to)
 }
 
 func (rf *RatesFile) UpdateRate(from, to string, r float32) {
-	rs := rf.readRatesFile()
+	rs := rf.ReadAll()
 
 	err := rs.Update(from, to, r)
 
@@ -33,11 +33,11 @@ func (rf *RatesFile) UpdateRate(from, to string, r float32) {
 		log.Fatalf("[!] Error: %s", err)
 	}
 
-	rf.writeRates(rs)
+	rf.Write(rs)
 }
 
 func (rf *RatesFile) DeleteRate(from, to string) {
-	rs := rf.readRatesFile()
+	rs := rf.ReadAll()
 
 	err := rs.Delete(from, to)
 
@@ -45,5 +45,5 @@ func (rf *RatesFile) DeleteRate(from, to string) {
 		log.Fatalf("[!] Error: %s", err)
 	}
 
-	rf.writeRates(rs)
+	rf.Write(rs)
 }

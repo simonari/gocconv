@@ -1,8 +1,8 @@
 package rate
 
 import (
-	"vsimonari/gocconv/config"
 	cmd "vsimonari/gocconv/internal/commands"
+	"vsimonari/gocconv/internal/config"
 
 	"github.com/spf13/cobra"
 )

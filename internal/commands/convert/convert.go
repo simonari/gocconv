@@ -2,8 +2,8 @@ package convert
 
 import (
 	"fmt"
-	"vsimonari/gocconv/config"
 	cmd "vsimonari/gocconv/internal/commands"
+	"vsimonari/gocconv/internal/config"
 	"vsimonari/gocconv/internal/core"
 	"vsimonari/gocconv/internal/storage"
 
