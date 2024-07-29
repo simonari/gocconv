@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
 )
 
 type ExchangeRatesResponse struct {
@@ -14,11 +15,10 @@ type ExchangeRatesResponse struct {
 	Rates          map[string]float64 `json:"rates"`
 }
 
-func makeRequest(from, to string) *ExchangeRatesResponse {
+func makeRequest(from string) *ExchangeRatesResponse {
 	baseUrl := "https://open.er-api.com/v6/latest/"
-	token := from
 
-	url := baseUrl + token
+	url := baseUrl + from
 
 	response, err := http.Get(url)
 
@@ -55,7 +55,8 @@ func (resp *ExchangeRateResponse) GetRate() *CurrencyRate {
 }
 
 func GetRateInfo(from, to string) ExchangeRateResponse {
-	rs := makeRequest(from, to)
+	rs := makeRequest(from)
+	to = strings.ToUpper(to)
 
 	rate := rs.Rates[to]
 
