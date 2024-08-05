@@ -62,10 +62,15 @@ func (rs *CurrencyRates) Add(r *CurrencyRate) []CurrencyRate {
 		result = append(result, *r)
 	}
 
+	rs.Rates = result
+	rs.Stored = uint8(len(result))
+
 	return result
 }
 
 func (rs *CurrencyRates) Get(from, to string) *CurrencyRate {
+	from, to = capitilizeFromTo(from, to)
+
 	idx, err := rs.getRateIdx(CurrencyRate{From: from, To: to})
 
 	if err != nil {
@@ -84,11 +89,14 @@ func (rs *CurrencyRates) Get(from, to string) *CurrencyRate {
 }
 
 func (rs *CurrencyRates) Update(from, to string, rate float32) error {
+	from, to = capitilizeFromTo(from, to)
+
 	r := CurrencyRate{From: from, To: to, Rate: rate}
 
 	idx, err := rs.getRateIdx(r)
 
 	if err != nil {
+		fmt.Printf("[!] %s\n", err)
 		return err
 	}
 
@@ -98,7 +106,10 @@ func (rs *CurrencyRates) Update(from, to string, rate float32) error {
 }
 
 func (rs *CurrencyRates) Delete(from, to string) error {
+	from, to = capitilizeFromTo(from, to)
+
 	rateToDelete := CurrencyRate{From: from, To: to}
+
 	idx, err := rs.getRateIdx(rateToDelete)
 
 	if err != nil {
@@ -112,11 +123,15 @@ func (rs *CurrencyRates) Delete(from, to string) error {
 	}
 
 	for i := idx + 1; i < len(rs.Rates); i++ {
-		result[i] = rs.Rates[i]
+		result[i-1] = rs.Rates[i]
 	}
 
 	rs.Stored = uint8(len(rs.Rates) - 1)
 	rs.Rates = result
 
 	return nil
+}
+
+func capitilizeFromTo(from, to string) (string, string) {
+	return strings.ToUpper(from), strings.ToUpper(to)
 }
